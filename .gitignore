@@ -1,0 +1,45 @@
+# Git Exclusions for Kotlin Multiplatform Project (KNotes)
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+.project
+.settings/
+.classpath
+
+# Gradle
+.gradle/
+build/
+**/build/
+!src/**/build/
+
+# Kotlin
+.kotlin/
+
+# iOS / Xcode
+# (Adding specific pbxproj and xcshareddata based on your existing one)
+iosApp/*.xcodeproj/xcuserdata/
+iosApp/*.xcodeproj/project.xcworkspace/
+iosApp/*.xcworkspace/contents.xcworkspacedata
+iosApp/**/xcshareddata/WorkspaceSettings.xcsettings
+iosApp/node_modules/
+*.DS_Store
+
+# Local properties and sensitive data
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Artifacts
+*.apk
+*.aar
+*.jar
+*.bin
+
+# Temporary files
+/tmp/
+*~
+*.swp
+*.log
