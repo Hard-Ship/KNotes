@@ -129,7 +129,7 @@ fun NotesScreen(
             }
 
             Scaffold(
-                modifier.fillMaxSize().safeContentPadding(),
+                modifier.fillMaxSize(),
                 topBar = {
                     TopAppBar(
                         title = { Text("Notes", style = MaterialTheme.typography.headlineMedium) },
