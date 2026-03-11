@@ -1,5 +1,7 @@
 package com.app.knotes
 
+import com.app.knotes.db.NoteEntity
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -24,16 +26,15 @@ fun NoteDetailScreen(
     val viewModel: NotesVm = koinViewModel()
     val detailState by viewModel.noteDetailScreenState.collectAsState()
 
+    LaunchedEffect(noteId) {
+        viewModel.getNoteById(noteId.toLong())
+    }
+
     // Title and Content states initialized from the note when loaded
     val titleState = remember { TextFieldState() }
     val contentState = remember { TextFieldState() }
 
     var isInitialized by remember { mutableStateOf(false) }
-
-    LaunchedEffect(noteId) {
-        viewModel.getNoteById(noteId)
-        isInitialized = false
-    }
 
     // Effect to update local TF states when note is loaded
     LaunchedEffect(detailState) {
@@ -43,7 +44,7 @@ fun NoteDetailScreen(
                 replace(0, length, note.title)
             }
             contentState.edit {
-                replace(0, length, note.note)
+                replace(0, length, note.content)
             }
             isInitialized = true
         }
@@ -57,7 +58,7 @@ fun NoteDetailScreen(
                     IconButton(onClick = {
                         // Save before going back
                         viewModel.updateNote(
-                            id = noteId,
+                            id = noteId.toLong(),
                             title = titleState.text.toString(),
                             content = contentState.text.toString()
                         )
@@ -73,7 +74,7 @@ fun NoteDetailScreen(
                 actions = {
                     if (detailState is NoteDetailUiState.Success) {
                         IconButton(onClick = {
-                            viewModel.deleteNote(noteId)
+                            viewModel.deleteNote(noteId.toLong())
                             onBack()
                         }) {
                             Icon(

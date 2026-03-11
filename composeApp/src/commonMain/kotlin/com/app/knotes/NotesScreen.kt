@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-
+import com.app.knotes.db.NoteEntity
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
@@ -173,7 +173,7 @@ fun NotesScreen(
                             onDelete = {
                                 viewModel.showDeleteDialog(note)
                             },
-                            onClick = onNoteClick
+                            onClick = { onNoteClick(it.toInt()) }
                         )
 
                     }
@@ -190,9 +190,9 @@ fun NotesScreen(
 @Composable
 fun NoteItem(
     modifier: Modifier,
-    note: NotesModel,
-    onDelete: (Int) -> Unit,
-    onClick: (Int) -> Unit
+    note: NoteEntity,
+    onDelete: (Long) -> Unit,
+    onClick: (Long) -> Unit
 ) {
 
     Card(
@@ -221,7 +221,7 @@ fun NoteItem(
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    note.note,
+                    note.content,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary,
                     maxLines = 3
