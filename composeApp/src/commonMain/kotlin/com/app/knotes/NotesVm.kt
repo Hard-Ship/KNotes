@@ -15,15 +15,15 @@ sealed class NotesScreenUiState {
     object Loading : NotesScreenUiState()
     data class Error(val message: String) : NotesScreenUiState()
     data class Success(
-        val notesList: List<NotesModel> = emptyList(),
-        val noteToDelete: NotesModel? = null,
+        val notesList: List<NoteEntity> = emptyList(),
+        val noteToDelete: NoteEntity? = null,
         val isShowAddNoteBs: Boolean = false
     ) : NotesScreenUiState()
 }
 
 sealed class NoteDetailUiState {
     object Loading : NoteDetailUiState()
-    data class Success(val note: NotesModel) : NoteDetailUiState()
+    data class Success(val note: NoteEntity) : NoteDetailUiState()
     data class Error(val message: String) : NoteDetailUiState()
     object Idle : NoteDetailUiState()
 }
@@ -39,7 +39,7 @@ class NotesVm(
         false
     )
 
-    private val _noteToDelete = MutableStateFlow<NotesModel?>(null)
+    private val _noteToDelete = MutableStateFlow<NoteEntity?>(null)
     private val _isShowAddNoteBs = MutableStateFlow(false)
     private val _isLoading = MutableStateFlow(false)
 
@@ -53,7 +53,7 @@ class NotesVm(
             NotesScreenUiState.Loading
         } else {
             NotesScreenUiState.Success(
-                notesList = notes.map { NotesModel(it.id.toInt(), it.title, it.content) },
+                notesList = notes,
                 noteToDelete = noteToDelete,
                 isShowAddNoteBs = isShowAddNoteBs
             )
@@ -90,7 +90,7 @@ class NotesVm(
         }
     }
     
-    fun showDeleteDialog(note: NotesModel) {
+    fun showDeleteDialog(note: NoteEntity) {
         _noteToDelete.value = note
     }
 
@@ -102,21 +102,19 @@ class NotesVm(
         _isShowAddNoteBs.value = show
     }
     
-    fun deleteNote(id: Int) {
+    fun deleteNote(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            notesRepository.deleteNoteById(id.toLong())
+            notesRepository.deleteNoteById(id)
         }
     }
 
-    fun getNoteById(id: Int) {
+    fun getNoteById(id: Long) {
         _noteDetailScreenState.value = NoteDetailUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val entity = notesRepository.getNoteById(id.toLong())
+                val entity = notesRepository.getNoteById(id)
                 if (entity != null) {
-                    _noteDetailScreenState.value = NoteDetailUiState.Success(
-                        NotesModel(entity.id.toInt(), entity.title, entity.content)
-                    )
+                    _noteDetailScreenState.value = NoteDetailUiState.Success(entity)
                 } else {
                     _noteDetailScreenState.value = NoteDetailUiState.Error("Note not found")
                 }
@@ -126,10 +124,10 @@ class NotesVm(
         }
     }
 
-    fun updateNote(id: Int, title: String, content: String) {
+    fun updateNote(id: Long, title: String, content: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val entity = NoteEntity(
-                id = id.toLong(),
+                id = id,
                 title = title,
                 content = content,
                 timestamp = currentTimeMillis()

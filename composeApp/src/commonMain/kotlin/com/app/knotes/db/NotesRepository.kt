@@ -2,7 +2,6 @@ package com.app.knotes.db
 
 import com.app.knotes.network.NotesApi
 import kotlinx.coroutines.flow.Flow
-import com.app.knotes.NotesModel
 import com.app.knotes.currentTimeMillis
 
 class NotesRepository(
@@ -25,14 +24,7 @@ class NotesRepository(
     suspend fun refreshNotes(): Result<Unit> {
         return notesApi.getNotes().map { remoteNotes ->
             remoteNotes.forEach { remoteNote ->
-                noteDao.insert(
-                    NoteEntity(
-                        id = remoteNote.id.toLong(),
-                        title = remoteNote.title,
-                        content = remoteNote.note,
-                        timestamp = currentTimeMillis()
-                    )
-                )
+                noteDao.insert(remoteNote.copy(timestamp = currentTimeMillis()))
             }
         }
     }
