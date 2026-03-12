@@ -10,5 +10,6 @@ data class NoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
     val content: String,
-    val timestamp: Long
+    val timestamp: Long,
+    val color: Long = 0xFFFFFFFF // Default to white
 )
