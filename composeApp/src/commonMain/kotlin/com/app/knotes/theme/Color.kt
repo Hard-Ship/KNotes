@@ -67,3 +67,18 @@ val surfaceVariantDark = Color(0xFF262626)
 val onSurfaceVariantDark = Color(0xFFB3B3B3)
 
 val outlineDark = Color(0xFF333333) // Graphite border
+
+val noteColors = listOf(
+    Color(0xFFFFFFFF), // White
+    Color(0xFFF28B82), // Red
+    Color(0xFFFBBC04), // Orange
+    Color(0xFFFFF475), // Yellow
+    Color(0xFFCCFF90), // Green
+    Color(0xFFA7FFEB), // Teal
+    Color(0xFFCBF0F8), // Blue
+    Color(0xFFAECBFA), // Dark Blue
+    Color(0xFFD7AEFB), // Purple
+    Color(0xFFFDCFE8), // Pink
+    Color(0xFFE6C9A8), // Brown
+    Color(0xFFE8EAED)  // Gray
+)

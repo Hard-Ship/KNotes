@@ -2,7 +2,10 @@ package com.app.knotes
 
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -44,7 +50,10 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.app.knotes.theme.AppTheme
+import com.app.knotes.theme.noteColors
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -121,8 +130,8 @@ fun NotesScreen(
 
                 AddNoteBottomSheet(
                     onDismissRequest = { viewModel.isShowAddNoteBs(false) },
-                    onAddNote = { title, content ->
-                        viewModel.addNote(title, content)
+                    onAddNote = { title, content, color ->
+                        viewModel.addNote(title, content, color)
                         viewModel.isShowAddNoteBs(false)
                     }
                 )
@@ -194,6 +203,8 @@ fun NoteItem(
     onDelete: (Long) -> Unit,
     onClick: (Long) -> Unit
 ) {
+    val noteColor = Color(note.color)
+    val isLightColor = noteColor == Color.White || noteColor == Color(0xFFE8EAED) || noteColor == Color(0xFFFFFFFF)
 
     Card(
         modifier = modifier.padding(vertical = 4.dp),
@@ -201,7 +212,7 @@ fun NoteItem(
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = noteColor
         ),
         onClick = {
             onClick(note.id)
@@ -215,7 +226,7 @@ fun NoteItem(
                 Text(
                     note.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = if (isLightColor) MaterialTheme.colorScheme.onSurface else Color.Black
                 )
 
                 Spacer(Modifier.height(6.dp))
@@ -223,7 +234,7 @@ fun NoteItem(
                 Text(
                     note.content,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = if (isLightColor) MaterialTheme.colorScheme.secondary else Color.Black.copy(alpha = 0.7f),
                     maxLines = 3
                 )
 
@@ -233,7 +244,7 @@ fun NoteItem(
                 Icon(
                     imageVector = Icons.Rounded.Delete,
                     contentDescription = "Delete Note",
-                    tint = MaterialTheme.colorScheme.onSurface.copy(0.3f)
+                    tint = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(0.3f) else Color.Black.copy(alpha = 0.3f)
                 )
             }
         }
@@ -245,11 +256,12 @@ fun NoteItem(
 @Composable
 fun AddNoteBottomSheet(
     onDismissRequest: () -> Unit,
-    onAddNote: (String, String) -> Unit
+    onAddNote: (String, String, Long) -> Unit
 ) {
 
     val noteTitle = remember { TextFieldState() }
     val noteContent = remember { TextFieldState() }
+    var selectedColor by remember { mutableStateOf(noteColors[0]) }
     val sheetState = rememberModalBottomSheetState()
 
     ModalBottomSheet(
@@ -285,12 +297,50 @@ fun AddNoteBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Select Tag Color",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(noteColors) { color ->
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(color, CircleShape)
+                            .clickable { selectedColor = color }
+                            .then(
+                                if (selectedColor == color) {
+                                    Modifier.background(Color.Black.copy(alpha = 0.2f), CircleShape)
+                                } else Modifier
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selectedColor == color) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
                     if (noteTitle.text.isNotBlank() || noteContent.text.isNotBlank()) {
-                        onAddNote(noteTitle.text.toString(), noteContent.text.toString())
+                        onAddNote(noteTitle.text.toString(), noteContent.text.toString(), selectedColor.toArgb().toLong())
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -79,12 +79,13 @@ class NotesVm(
         }
     }
 
-    fun addNote(title: String, content: String) {
+    fun addNote(title: String, content: String, color: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val note = NoteEntity(
                 title = title,
                 content = content,
-                timestamp = currentTimeMillis()
+                timestamp = currentTimeMillis(),
+                color = color
             )
             notesRepository.insert(note)
         }
@@ -124,13 +125,14 @@ class NotesVm(
         }
     }
 
-    fun updateNote(id: Long, title: String, content: String) {
+    fun updateNote(id: Long, title: String, content: String, color: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val entity = NoteEntity(
                 id = id,
                 title = title,
                 content = content,
-                timestamp = currentTimeMillis()
+                timestamp = currentTimeMillis(),
+                color = color
             )
             notesRepository.update(entity)
         }
