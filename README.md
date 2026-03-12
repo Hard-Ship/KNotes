@@ -12,6 +12,11 @@
 
 ---
 
+> [!IMPORTANT]
+> **Always use the latest version of KNotes.** We are constantly refining the UI, improving performance, and adopting the newest multiplatform standards. Check the [Releases](https://github.com/your-repo/knotes/releases) or the `main` branch for the most up-to-date experience.
+
+---
+
 ## 🌟 About The Project
 
 **KNotes** is a starter project born out of the desire to explore and learn **Compose Multiplatform**. It's not a finalized product, but rather a living, breathing sandbox where we continuously build, refine, and experiment with the latest and greatest libraries in the Kotlin Multiplatform (KMP) ecosystem.
