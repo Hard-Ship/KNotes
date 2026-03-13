@@ -3,6 +3,7 @@ package com.app.knotes
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -315,23 +316,16 @@ fun AddNoteBottomSheet(
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(color, CircleShape)
-                            .clickable { selectedColor = color }
-                            .then(
-                                if (selectedColor == color) {
-                                    Modifier.background(Color.Black.copy(alpha = 0.2f), CircleShape)
-                                } else Modifier
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (selectedColor == color) {
-                            Box(
-                                modifier = Modifier
-                                    .size(12.dp)
-                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                            .border(
+                                width = if (selectedColor == color) 2.dp else 1.dp,
+                                color = if (selectedColor == color) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                shape = CircleShape
                             )
-                        }
-                    }
+                            .padding(if (selectedColor == color) 3.dp else 0.dp)
+                            .background(color, CircleShape)
+                            .clickable { selectedColor = color },
+                        contentAlignment = Alignment.Center
+                    ) {}
                 }
             }
 

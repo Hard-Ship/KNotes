@@ -157,23 +157,16 @@ fun NoteDetailScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(38.dp)
-                                        .background(color, CircleShape)
                                         .border(
                                             width = if (selectedColor == color) 2.dp else 1.dp,
                                             color = if (selectedColor == color) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                                             shape = CircleShape
                                         )
+                                        .padding(if (selectedColor == color) 3.dp else 0.dp)
+                                        .background(color, CircleShape)
                                         .clickable { selectedColor = color },
                                     contentAlignment = Alignment.Center
-                                ) {
-                                    if (selectedColor == color) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(12.dp)
-                                                .background(MaterialTheme.colorScheme.primary, CircleShape)
-                                        )
-                                    }
-                                }
+                                ) {}
                             }
                         }
                     }
