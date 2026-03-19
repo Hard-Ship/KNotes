@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.app.knotes.theme.AppTheme
 import com.app.knotes.theme.noteColors
+import com.app.knotes.utils.convertMillisToDate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -175,6 +177,36 @@ fun NotesScreen(
                     columns = GridCells.Adaptive(300.dp),
                 ) {
 
+                    if (data.notesList.isEmpty()) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 80.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    "🗒️",
+                                    style = MaterialTheme.typography.displayMedium
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                Text(
+                                    "No notes yet",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "Tap 'Add Note' to get started",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                                )
+                            }
+                        }
+                    }
+
                     items(data.notesList) { note ->
 
                         NoteItem(
@@ -237,6 +269,14 @@ fun NoteItem(
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (isLightColor) MaterialTheme.colorScheme.secondary else Color.Black.copy(alpha = 0.7f),
                     maxLines = 3
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    convertMillisToDate(note.timestamp),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.4f)
                 )
 
             }
