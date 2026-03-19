@@ -18,7 +18,9 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import com.app.knotes.utils.KBackHandler
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import com.app.knotes.theme.noteColors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NoteDetailScreen(
     noteId: Int,
@@ -62,6 +64,22 @@ fun NoteDetailScreen(
         }
     }
 
+    // Shared save-and-navigate-back logic used by both back arrow and system back gesture
+    val saveAndGoBack = {
+        if (isInitialized) {
+            viewModel.updateNote(
+                id = noteId.toLong(),
+                title = titleState.text.toString(),
+                content = contentState.text.toString(),
+                color = selectedColor.toArgb().toLong()
+            )
+        }
+        onBack()
+    }
+
+    // Intercept system back gesture (predictive back, nav gesture, HW back button)
+    KBackHandler(onBack = saveAndGoBack)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,16 +101,7 @@ fun NoteDetailScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        // Save before going back
-                        viewModel.updateNote(
-                            id = noteId.toLong(),
-                            title = titleState.text.toString(),
-                            content = contentState.text.toString(),
-                            color = selectedColor.toArgb().toLong()
-                        )
-                        onBack()
-                    }) {
+                    IconButton(onClick = saveAndGoBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = "Back",
