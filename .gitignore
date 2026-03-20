@@ -18,7 +18,6 @@ build/
 .kotlin/
 
 # iOS / Xcode
-# (Adding specific pbxproj and xcshareddata based on your existing one)
 iosApp/*.xcodeproj/xcuserdata/
 iosApp/*.xcodeproj/project.xcworkspace/
 iosApp/*.xcworkspace/contents.xcworkspacedata

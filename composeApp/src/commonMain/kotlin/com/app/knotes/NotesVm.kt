@@ -42,18 +42,29 @@ class NotesVm(
     private val _noteToDelete = MutableStateFlow<NoteEntity?>(null)
     private val _isShowAddNoteBs = MutableStateFlow(false)
     private val _isLoading = MutableStateFlow(false)
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val state: StateFlow<NotesScreenUiState> = combine(
         notesRepository.getAllNotes(),
         _noteToDelete,
         _isShowAddNoteBs,
-        _isLoading
-    ) { notes, noteToDelete, isShowAddNoteBs, isLoading ->
+        _isLoading,
+        _searchQuery
+    ) { notes, noteToDelete, isShowAddNoteBs, isLoading, query ->
         if (isLoading && notes.isEmpty()) {
             NotesScreenUiState.Loading
         } else {
+            val filteredNotes = if (query.isBlank()) {
+                notes
+            } else {
+                notes.filter {
+                    it.title.contains(query, ignoreCase = true) || 
+                    it.content.contains(query, ignoreCase = true)
+                }
+            }
             NotesScreenUiState.Success(
-                notesList = notes,
+                notesList = filteredNotes,
                 noteToDelete = noteToDelete,
                 isShowAddNoteBs = isShowAddNoteBs
             )
@@ -77,6 +88,10 @@ class NotesVm(
             notesRepository.refreshNotes()
             _isLoading.value = false
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
     }
 
     fun addNote(title: String, content: String, color: Long) {
