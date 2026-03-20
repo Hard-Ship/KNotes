@@ -56,6 +56,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.app.knotes.theme.AppTheme
 import com.app.knotes.theme.noteColors
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.material.icons.rounded.Search
 import com.app.knotes.utils.convertMillisToDate
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -170,13 +175,28 @@ fun NotesScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.background
             ) { innerPadding ->
-                LazyVerticalGrid(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentPadding = innerPadding,
-                    columns = GridCells.Adaptive(300.dp),
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding)
                 ) {
+                    val searchQuery by viewModel.searchQuery.collectAsState()
 
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { viewModel.updateSearchQuery(it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        placeholder = { Text("Search notes...") },
+                        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search") },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true
+                    )
+
+                    LazyVerticalGrid(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        columns = GridCells.Adaptive(300.dp),
+                    ) {
                     if (data.notesList.isEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             Column(
@@ -187,19 +207,19 @@ fun NotesScreen(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    "🗒️",
+                                    if (searchQuery.isNotEmpty()) "🔍" else "🗒️",
                                     style = MaterialTheme.typography.displayMedium
                                 )
                                 Spacer(Modifier.height(16.dp))
                                 Text(
-                                    "No notes yet",
+                                    if (searchQuery.isNotEmpty()) "No notes found" else "No notes yet",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "Tap 'Add Note' to get started",
+                                    if (searchQuery.isNotEmpty()) "Try a different search term" else "Tap 'Add Note' to get started",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                                 )
@@ -212,6 +232,7 @@ fun NotesScreen(
                         NoteItem(
                             modifier = modifier.fillMaxWidth().padding(16.dp),
                             note = note,
+                            searchQuery = searchQuery,
                             onDelete = {
                                 viewModel.showDeleteDialog(note)
                             },
@@ -221,9 +242,11 @@ fun NotesScreen(
                     }
 
                 }
+                }
 
             }
         }
+
     }
 }
 
@@ -233,6 +256,7 @@ fun NotesScreen(
 fun NoteItem(
     modifier: Modifier,
     note: NoteEntity,
+    searchQuery: String = "",
     onDelete: (Long) -> Unit,
     onClick: (Long) -> Unit
 ) {
@@ -257,7 +281,7 @@ fun NoteItem(
             Column(modifier = Modifier.weight(1f)) {
 
                 Text(
-                    note.title,
+                    text = highlightSearchText(note.title, searchQuery),
                     style = MaterialTheme.typography.titleMedium,
                     color = if (isLightColor) MaterialTheme.colorScheme.onSurface else Color.Black
                 )
@@ -265,7 +289,7 @@ fun NoteItem(
                 Spacer(Modifier.height(6.dp))
 
                 Text(
-                    note.content,
+                    text = highlightSearchText(note.content, searchQuery),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (isLightColor) MaterialTheme.colorScheme.secondary else Color.Black.copy(alpha = 0.7f),
                     maxLines = 3
@@ -385,4 +409,27 @@ fun AddNoteBottomSheet(
         }
     }
 
+}
+
+fun highlightSearchText(text: String, query: String): AnnotatedString {
+    if (query.isBlank()) return AnnotatedString(text)
+
+    return buildAnnotatedString {
+        var startIndex = 0
+        val lowerText = text.lowercase()
+        val lowerQuery = query.lowercase()
+
+        while (startIndex < text.length) {
+            val index = lowerText.indexOf(lowerQuery, startIndex)
+            if (index == -1) {
+                append(text.substring(startIndex))
+                break
+            }
+            append(text.substring(startIndex, index))
+            withStyle(style = SpanStyle(background = Color.Yellow.copy(alpha = 0.5f))) {
+                append(text.substring(index, index + query.length))
+            }
+            startIndex = index + query.length
+        }
+    }
 }
