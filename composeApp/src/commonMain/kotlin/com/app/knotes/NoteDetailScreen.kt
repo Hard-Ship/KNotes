@@ -214,28 +214,44 @@ fun NoteDetailScreen(
                         Spacer(Modifier.height(16.dp))
 
                         // Borderless Content Input
-                        TextField(
-                            state = contentState,
-                            modifier = Modifier.fillMaxSize().weight(1f),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f
-                            ),
-                            placeholder = {
-                                Text(
-                                    "Start writing...",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+                            TextField(
+                                state = contentState,
+                                modifier = Modifier.fillMaxSize(),
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                    lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f
+                                ),
+                                placeholder = {
+                                    Text(
+                                        "Start writing...",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                    )
+                                },
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
                                 )
-                            },
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
                             )
-                        )
+
+                            // Word & Character Count Label
+                            val text = contentState.text.toString()
+                            val wordCount = if (text.isBlank()) 0 else text.split(Regex("\\s+")).filter { it.isNotBlank() }.size
+                            val charCount = text.length
+
+                            Text(
+                                text = "$wordCount words  •  $charCount characters",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(bottom = 8.dp, end = 4.dp)
+                            )
+                        }
                     }
                 }
             }
