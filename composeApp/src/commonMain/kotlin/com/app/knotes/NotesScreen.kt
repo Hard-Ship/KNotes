@@ -62,6 +62,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.material.icons.rounded.Search
 import com.app.knotes.utils.convertMillisToDate
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -227,18 +230,56 @@ fun NotesScreen(
                         }
                     }
 
-                    items(data.notesList) { note ->
-
-                        NoteItem(
-                            modifier = modifier.fillMaxWidth().padding(16.dp),
-                            note = note,
-                            searchQuery = searchQuery,
-                            onDelete = {
-                                viewModel.showDeleteDialog(note)
-                            },
-                            onClick = { onNoteClick(it.toInt()) }
+                    items(data.notesList, key = { it.id }) { note ->
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { value ->
+                                if (value == SwipeToDismissBoxValue.EndToStart || value == SwipeToDismissBoxValue.StartToEnd) {
+                                    viewModel.deleteNote(note.id)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
                         )
 
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {
+                                val color = MaterialTheme.colorScheme.errorContainer
+                                val iconTint = MaterialTheme.colorScheme.onErrorContainer
+                                val alignment = when (dismissState.dismissDirection) {
+                                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                                    SwipeToDismissBoxValue.Settled -> Alignment.Center
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(vertical = 4.dp)
+                                        .background(color, RoundedCornerShape(12.dp)),
+                                    contentAlignment = alignment
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = "Delete Note",
+                                        tint = iconTint,
+                                        modifier = Modifier.padding(20.dp)
+                                    )
+                                }
+                            },
+                            modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            content = {
+                                NoteItem(
+                                    modifier = Modifier,
+                                    note = note,
+                                    searchQuery = searchQuery,
+                                    onDelete = {
+                                        viewModel.showDeleteDialog(note)
+                                    },
+                                    onClick = { onNoteClick(it.toInt()) }
+                                )
+                            }
+                        )
                     }
 
                 }
