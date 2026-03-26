@@ -46,6 +46,7 @@ fun NoteDetailScreen(
     val contentState = remember { TextFieldState() }
     var selectedColor by remember { mutableStateOf(noteColors[0]) }
     var showColorPicker by remember { mutableStateOf(false) }
+    var isPinned by remember { mutableStateOf(false) }
 
     var isInitialized by remember { mutableStateOf(false) }
 
@@ -60,6 +61,7 @@ fun NoteDetailScreen(
                 replace(0, length, note.content)
             }
             selectedColor = Color(note.color)
+            isPinned = note.isPinned
             isInitialized = true
         }
     }
@@ -71,7 +73,8 @@ fun NoteDetailScreen(
                 id = noteId.toLong(),
                 title = titleState.text.toString(),
                 content = contentState.text.toString(),
-                color = selectedColor.toArgb().toLong()
+                color = selectedColor.toArgb().toLong(),
+                isPinned = isPinned
             )
         }
         onBack()

@@ -63,8 +63,13 @@ class NotesVm(
                     it.content.contains(query, ignoreCase = true)
                 }
             }
+            // Sort by pinned status first, then by timestamp descending
+            val sortedNotes = filteredNotes.sortedWith(
+                compareByDescending<NoteEntity> { it.isPinned }
+                    .thenByDescending { it.timestamp }
+            )
             NotesScreenUiState.Success(
-                notesList = filteredNotes,
+                notesList = sortedNotes,
                 noteToDelete = noteToDelete,
                 isShowAddNoteBs = isShowAddNoteBs
             )
@@ -100,7 +105,8 @@ class NotesVm(
                 title = title,
                 content = content,
                 timestamp = currentTimeMillis(),
-                color = color
+                color = color,
+                isPinned = false
             )
             notesRepository.insert(note)
         }
@@ -124,6 +130,12 @@ class NotesVm(
         }
     }
 
+    fun togglePin(note: NoteEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesRepository.update(note.copy(isPinned = !note.isPinned))
+        }
+    }
+
     fun getNoteById(id: Long) {
         _noteDetailScreenState.value = NoteDetailUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
@@ -140,14 +152,15 @@ class NotesVm(
         }
     }
 
-    fun updateNote(id: Long, title: String, content: String, color: Long) {
+    fun updateNote(id: Long, title: String, content: String, color: Long, isPinned: Boolean = false) {
         viewModelScope.launch(Dispatchers.IO) {
             val entity = NoteEntity(
                 id = id,
                 title = title,
                 content = content,
                 timestamp = currentTimeMillis(),
-                color = color
+                color = color,
+                isPinned = isPinned
             )
             notesRepository.update(entity)
         }
