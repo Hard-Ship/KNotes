@@ -50,6 +50,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -62,6 +64,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.material.icons.rounded.Search
 import com.app.knotes.utils.convertMillisToDate
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -182,7 +187,7 @@ fun NotesScreen(
 
                     OutlinedTextField(
                         value = searchQuery,
-                        onValueChange = { viewModel.updateSearchQuery(it) },
+                        onValueChange = { viewModel.updateSearchQuery(it.trim()) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -227,18 +232,59 @@ fun NotesScreen(
                         }
                     }
 
-                    items(data.notesList) { note ->
-
-                        NoteItem(
-                            modifier = modifier.fillMaxWidth().padding(16.dp),
-                            note = note,
-                            searchQuery = searchQuery,
-                            onDelete = {
-                                viewModel.showDeleteDialog(note)
-                            },
-                            onClick = { onNoteClick(it.toInt()) }
+                    items(data.notesList, key = { it.id }) { note ->
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { value ->
+                                if (value == SwipeToDismissBoxValue.EndToStart || value == SwipeToDismissBoxValue.StartToEnd) {
+                                    viewModel.deleteNote(note.id)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
                         )
 
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = {
+                                val color = MaterialTheme.colorScheme.errorContainer
+                                val iconTint = MaterialTheme.colorScheme.onErrorContainer
+                                val alignment = when (dismissState.dismissDirection) {
+                                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                                    SwipeToDismissBoxValue.Settled -> Alignment.Center
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(vertical = 4.dp)
+                                        .background(color, RoundedCornerShape(12.dp)),
+                                    contentAlignment = alignment
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = "Delete Note",
+                                        tint = iconTint,
+                                        modifier = Modifier.padding(20.dp)
+                                    )
+                                }
+                            },
+                            modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            content = {
+                                NoteItem(
+                                    modifier = Modifier,
+                                    note = note,
+                                    searchQuery = searchQuery,
+                                    onDelete = {
+                                        viewModel.showDeleteDialog(note)
+                                    },
+                                    onTogglePin = {
+                                        viewModel.togglePin(note)
+                                    },
+                                    onClick = { onNoteClick(it.toInt()) }
+                                )
+                            }
+                        )
                     }
 
                 }
@@ -258,6 +304,7 @@ fun NoteItem(
     note: NoteEntity,
     searchQuery: String = "",
     onDelete: (Long) -> Unit,
+    onTogglePin: (Long) -> Unit,
     onClick: (Long) -> Unit
 ) {
     val noteColor = Color(note.color)
@@ -276,15 +323,33 @@ fun NoteItem(
         }) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = highlightSearchText(note.title, searchQuery),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (isLightColor) MaterialTheme.colorScheme.onSurface else Color.Black,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Text(
-                    text = highlightSearchText(note.title, searchQuery),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isLightColor) MaterialTheme.colorScheme.onSurface else Color.Black
-                )
+                    IconButton(
+                        onClick = { onTogglePin(note.id) },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (note.isPinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin,
+                            contentDescription = if (note.isPinned) "Unpin" else "Pin",
+                            tint = if (isLightColor) {
+                                if (note.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                            } else {
+                                if (note.isPinned) Color.Blue else Color.Black.copy(alpha = 0.4f)
+                            },
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
 
                 Spacer(Modifier.height(6.dp))
 

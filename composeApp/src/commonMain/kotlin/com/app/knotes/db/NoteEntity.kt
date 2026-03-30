@@ -11,5 +11,6 @@ data class NoteEntity(
     val title: String,
     val content: String,
     val timestamp: Long,
-    val color: Long = 0xFFFFFFFF // Default to white
+    val color: Long = 0xFFFFFFFF, // Default to white
+    val isPinned: Boolean = false
 )
