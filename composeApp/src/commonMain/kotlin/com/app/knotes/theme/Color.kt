@@ -57,7 +57,7 @@ val onErrorDark = Color(0xFF4C0519)
 val errorContainerDark = Color(0xFF881337)
 val onErrorContainerDark = Color(0xFFFFF1F2)
 
-val backgroundDark = Color(0xFF121212) // Deep Charcoal
+val backgroundDark = Color(0xFF181818) // Deep Charcoal
 val onBackgroundDark = Color(0xFFFFFFFF)
 
 val surfaceDark = Color(0xFF1E1E1E) // Modern Dark Gray
