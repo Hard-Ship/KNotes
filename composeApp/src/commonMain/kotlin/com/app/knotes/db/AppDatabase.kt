@@ -7,7 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import com.app.knotes.task.core.TaskEntity
 import com.app.knotes.task.data.TaskDao
 
-@Database(entities = [NoteEntity::class, TaskEntity::class], version = 3)
+@Database(entities = [NoteEntity::class, TaskEntity::class], version = 1)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
