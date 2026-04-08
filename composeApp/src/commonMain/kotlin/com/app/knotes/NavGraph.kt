@@ -2,13 +2,12 @@ package com.app.knotes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,10 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.app.knotes.settings.SettingsScreen
+import com.app.knotes.settings.backup.BackupAndRestoreScreen
 import com.app.knotes.task.pres.TasksScreen
 import kotlinx.serialization.Serializable
 
@@ -31,11 +31,15 @@ sealed interface NavRoute {
 
     @Serializable
     data class NoteDetail(val noteId: Int) : NavRoute
+
+    @Serializable
+    data object BackupAndRestore : NavRoute
 }
 
 enum class RootTab(val label: String, val icon: ImageVector) {
     Tasks("Tasks", Icons.Rounded.Description),
-    Notes("Notes", Icons.Rounded.CheckCircle)
+    Notes("Notes", Icons.Rounded.CheckCircle),
+    Settings("Settings", Icons.Rounded.Settings),
 }
 
 @Composable
@@ -54,8 +58,8 @@ fun AppNavigation() {
 
             entry<NavRoute.Root> {
                 RootScreen(
-                    onNoteClick = { id ->
-                        backstack.add(NavRoute.NoteDetail(id))
+                    onNavigateChildScreen = { route ->
+                        backstack.add(route)
                     }
                 )
             }
@@ -66,12 +70,16 @@ fun AppNavigation() {
                     onBack = pop
                 )
             }
+
+            entry<NavRoute.BackupAndRestore> {
+                BackupAndRestoreScreen(onBack = pop)
+            }
         }
     )
 }
 
 @Composable
-fun RootScreen(onNoteClick: (Int) -> Unit) {
+fun RootScreen(onNavigateChildScreen: (NavRoute) -> Unit) {
     var selectedTab by remember { mutableStateOf(RootTab.Tasks) }
     val pillShape = RoundedCornerShape(100)
 
@@ -119,7 +127,8 @@ fun RootScreen(onNoteClick: (Int) -> Unit) {
                 Box(modifier = Modifier.weight(1f)) {
                     when (selectedTab) {
                         RootTab.Tasks -> TasksScreen()
-                        RootTab.Notes -> NotesScreen(onNoteClick = onNoteClick)
+                        RootTab.Notes -> NotesScreen(onNoteClick = { onNavigateChildScreen(NavRoute.NoteDetail(it)) })
+                        RootTab.Settings -> SettingsScreen(onNavigateChildScreen = onNavigateChildScreen)
                     }
                 }
             }
@@ -142,7 +151,8 @@ fun RootScreen(onNoteClick: (Int) -> Unit) {
                 ) {
                     when (selectedTab) {
                         RootTab.Tasks -> TasksScreen()
-                        RootTab.Notes -> NotesScreen(onNoteClick = onNoteClick)
+                        RootTab.Notes -> NotesScreen(onNoteClick = { onNavigateChildScreen(NavRoute.NoteDetail(it)) })
+                        RootTab.Settings -> SettingsScreen(onNavigateChildScreen = onNavigateChildScreen)
                     }
                 }
             }
