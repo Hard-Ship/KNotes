@@ -17,13 +17,16 @@ sealed class TaskScreenUiState {
     data class Error(val message: String) : TaskScreenUiState()
     data class Success(
         val taskList: List<TaskEntity> = emptyList(),
-        val isShowAddTaskDialog: Boolean = false
+        val isShowAddTaskDialog: Boolean = false,
+        val searchQuery: String = ""
     ) : TaskScreenUiState()
 }
 
 class TaskVm(
     private val taskRepo: TaskRepository
 ) : ViewModel() {
+
+    private var allTasks: List<TaskEntity> = emptyList()
 
     private val _TaskScreenUiState =
         MutableStateFlow<TaskScreenUiState>(TaskScreenUiState.Loading)
@@ -36,8 +39,14 @@ class TaskVm(
 
     fun getAllTasks() {
         viewModelScope.launch(Dispatchers.IO) {
-            taskRepo.getAllTasks().collectLatest { list->
-                    updateTaskScreenUiState(TaskScreenUiState.Success(taskList = list))
+            taskRepo.getAllTasks().collectLatest { list ->
+                allTasks = list
+                _TaskScreenUiState.update { current ->
+                    val success = current as? TaskScreenUiState.Success ?: TaskScreenUiState.Success()
+                    success.copy(
+                        taskList = allTasks.filter { it.title.contains(success.searchQuery, ignoreCase = true) }
+                    )
+                }
             }
         }
     }
@@ -73,6 +82,15 @@ class TaskVm(
         _TaskScreenUiState.update { current ->
             (current as? TaskScreenUiState.Success)?.copy(isShowAddTaskDialog = show)
                 ?: current
+        }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _TaskScreenUiState.update { current ->
+            (current as? TaskScreenUiState.Success)?.copy(
+                searchQuery = query,
+                taskList = allTasks.filter { it.title.contains(query, ignoreCase = true) }
+            ) ?: current
         }
     }
 

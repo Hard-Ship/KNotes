@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -125,44 +126,60 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                 },
                 containerColor = MaterialTheme.colorScheme.background
             ) { paddingValues ->
-                if (data.taskList.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(paddingValues),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            "✅",
-                            style = MaterialTheme.typography.displayMedium
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            "All caught up!",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Tap '+' to add a task",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
-                        )
-                    }
-                } else {
-                    LazyVerticalGrid(
+                    Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    OutlinedTextField(
+                        value = data.searchQuery,
+                        onValueChange = viewModel::updateSearchQuery,
+                        placeholder = { Text("Search tasks...") },
                         modifier = Modifier
-                            .fillMaxSize(),
-                        contentPadding = paddingValues,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        columns = GridCells.Adaptive(300.dp),
-                    ) {
-                        items(data.taskList, key = { it.id }) { task ->
-                            TaskItem(
-                                task = task,
-                                onToggle = { viewModel.toggleTaskCompletion(task) },
-                                onDelete = { viewModel.deleteTask(task.id) }
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        leadingIcon = {
+                            Icon(Icons.Rounded.Search, contentDescription = "Search")
+                        }
+                    )
+
+                    if (data.taskList.isEmpty()) {
+                        val isSearching = data.searchQuery.isNotEmpty()
+                        Column(
+                            modifier = Modifier.fillMaxSize().weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                if (isSearching) "🔍" else "✅",
+                                style = MaterialTheme.typography.displayMedium
                             )
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                if (isSearching) "No tasks found" else "All caught up!",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                if (isSearching) "Try a different search term" else "Tap '+' to add a task",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                            )
+                        }
+                    } else {
+                        LazyVerticalGrid(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            columns = GridCells.Adaptive(300.dp),
+                        ) {
+                            items(data.taskList, key = { it.id }) { task ->
+                                TaskItem(
+                                    task = task,
+                                    onToggle = { viewModel.toggleTaskCompletion(task) },
+                                    onDelete = { viewModel.deleteTask(task.id) }
+                                )
+                            }
                         }
                     }
                 }
