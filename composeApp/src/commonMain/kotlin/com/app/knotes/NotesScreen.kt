@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import com.app.knotes.db.NoteEntity
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DarkMode
@@ -52,6 +55,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -152,6 +156,7 @@ fun NotesScreen(
 
             Scaffold(
                 modifier.fillMaxSize(),
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 topBar = {
                     TopAppBar(
                         title = { Text("Notes", style = MaterialTheme.typography.headlineMedium) },
@@ -169,13 +174,16 @@ fun NotesScreen(
                     )
                 },
                 floatingActionButton = {
-                    ExtendedFloatingActionButton(
+                    FloatingActionButton(
+                        modifier = modifier
+                            .navigationBarsPadding()
+                            .padding(bottom = 90.dp,),
                         onClick = { viewModel.isShowAddNoteBs(true) },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(50.dp)
                     ) {
-                        Text("Add Note", fontWeight = FontWeight.SemiBold)
+                        Icon(Icons.Rounded.Add, contentDescription = "Add Task")
                     }
                 },
                 containerColor = MaterialTheme.colorScheme.background
@@ -200,94 +208,95 @@ fun NotesScreen(
                     LazyVerticalGrid(
                         modifier = Modifier
                             .fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 160.dp),
                         columns = GridCells.Adaptive(300.dp),
                     ) {
-                    if (data.notesList.isEmpty()) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 80.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    if (searchQuery.isNotEmpty()) "🔍" else "🗒️",
-                                    style = MaterialTheme.typography.displayMedium
-                                )
-                                Spacer(Modifier.height(16.dp))
-                                Text(
-                                    if (searchQuery.isNotEmpty()) "No notes found" else "No notes yet",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    if (searchQuery.isNotEmpty()) "Try a different search term" else "Tap 'Add Note' to get started",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
-                                )
-                            }
-                        }
-                    }
-
-                    items(data.notesList, key = { it.id }) { note ->
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value == SwipeToDismissBoxValue.EndToStart || value == SwipeToDismissBoxValue.StartToEnd) {
-                                    viewModel.deleteNote(note.id)
-                                    true
-                                } else {
-                                    false
-                                }
-                            }
-                        )
-
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            backgroundContent = {
-                                val color = MaterialTheme.colorScheme.errorContainer
-                                val iconTint = MaterialTheme.colorScheme.onErrorContainer
-                                val alignment = when (dismissState.dismissDirection) {
-                                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                                    SwipeToDismissBoxValue.Settled -> Alignment.Center
-                                }
-                                Box(
+                        if (data.notesList.isEmpty()) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Column(
                                     modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(vertical = 4.dp)
-                                        .background(color, RoundedCornerShape(12.dp)),
-                                    contentAlignment = alignment
+                                        .fillMaxWidth()
+                                        .padding(top = 80.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Delete,
-                                        contentDescription = "Delete Note",
-                                        tint = iconTint,
-                                        modifier = Modifier.padding(20.dp)
+                                    Text(
+                                        if (searchQuery.isNotEmpty()) "🔍" else "🗒️",
+                                        style = MaterialTheme.typography.displayMedium
+                                    )
+                                    Spacer(Modifier.height(16.dp))
+                                    Text(
+                                        if (searchQuery.isNotEmpty()) "No notes found" else "No notes yet",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        if (searchQuery.isNotEmpty()) "Try a different search term" else "Tap '+' to get started",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                                     )
                                 }
-                            },
-                            modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            content = {
-                                NoteItem(
-                                    modifier = Modifier,
-                                    note = note,
-                                    searchQuery = searchQuery,
-                                    onDelete = {
-                                        viewModel.showDeleteDialog(note)
-                                    },
-                                    onTogglePin = {
-                                        viewModel.togglePin(note)
-                                    },
-                                    onClick = { onNoteClick(it.toInt()) }
-                                )
                             }
-                        )
-                    }
+                        }
 
-                }
+                        items(data.notesList, key = { it.id }) { note ->
+                            val dismissState = rememberSwipeToDismissBoxState(
+                                confirmValueChange = { value ->
+                                    if (value == SwipeToDismissBoxValue.EndToStart || value == SwipeToDismissBoxValue.StartToEnd) {
+                                        viewModel.deleteNote(note.id)
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                            )
+
+                            SwipeToDismissBox(
+                                state = dismissState,
+                                backgroundContent = {
+                                    val color = MaterialTheme.colorScheme.errorContainer
+                                    val iconTint = MaterialTheme.colorScheme.onErrorContainer
+                                    val alignment = when (dismissState.dismissDirection) {
+                                        SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                                        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                                        SwipeToDismissBoxValue.Settled -> Alignment.Center
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(vertical = 4.dp)
+                                            .background(color, RoundedCornerShape(12.dp)),
+                                        contentAlignment = alignment
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = "Delete Note",
+                                            tint = iconTint,
+                                            modifier = Modifier.padding(20.dp)
+                                        )
+                                    }
+                                },
+                                modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                content = {
+                                    NoteItem(
+                                        modifier = Modifier,
+                                        note = note,
+                                        searchQuery = searchQuery,
+                                        onDelete = {
+                                            viewModel.showDeleteDialog(note)
+                                        },
+                                        onTogglePin = {
+                                            viewModel.togglePin(note)
+                                        },
+                                        onClick = { onNoteClick(it.toInt()) }
+                                    )
+                                }
+                            )
+                        }
+
+                    }
                 }
 
             }
@@ -308,7 +317,8 @@ fun NoteItem(
     onClick: (Long) -> Unit
 ) {
     val noteColor = Color(note.color)
-    val isLightColor = noteColor == Color.White || noteColor == Color(0xFFE8EAED) || noteColor == Color(0xFFFFFFFF)
+    val isLightColor =
+        noteColor == Color.White || noteColor == Color(0xFFE8EAED) || noteColor == Color(0xFFFFFFFF)
 
     Card(
         modifier = modifier.padding(vertical = 4.dp),
@@ -342,7 +352,9 @@ fun NoteItem(
                             imageVector = if (note.isPinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin,
                             contentDescription = if (note.isPinned) "Unpin" else "Pin",
                             tint = if (isLightColor) {
-                                if (note.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                                if (note.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
+                                    alpha = 0.4f
+                                )
                             } else {
                                 if (note.isPinned) Color.Blue else Color.Black.copy(alpha = 0.4f)
                             },
@@ -356,7 +368,9 @@ fun NoteItem(
                 Text(
                     text = highlightSearchText(note.content, searchQuery),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (isLightColor) MaterialTheme.colorScheme.secondary else Color.Black.copy(alpha = 0.7f),
+                    color = if (isLightColor) MaterialTheme.colorScheme.secondary else Color.Black.copy(
+                        alpha = 0.7f
+                    ),
                     maxLines = 3
                 )
 
@@ -365,7 +379,9 @@ fun NoteItem(
                 Text(
                     convertMillisToDate(note.timestamp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else Color.Black.copy(alpha = 0.4f)
+                    color = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else Color.Black.copy(
+                        alpha = 0.4f
+                    )
                 )
 
             }
@@ -374,7 +390,9 @@ fun NoteItem(
                 Icon(
                     imageVector = Icons.Rounded.Delete,
                     contentDescription = "Delete Note",
-                    tint = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(0.3f) else Color.Black.copy(alpha = 0.3f)
+                    tint = if (isLightColor) MaterialTheme.colorScheme.onSurface.copy(0.3f) else Color.Black.copy(
+                        alpha = 0.3f
+                    )
                 )
             }
         }
@@ -447,7 +465,9 @@ fun AddNoteBottomSheet(
                             .size(40.dp)
                             .border(
                                 width = if (selectedColor == color) 2.dp else 1.dp,
-                                color = if (selectedColor == color) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                color = if (selectedColor == color) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(
+                                    alpha = 0.2f
+                                ),
                                 shape = CircleShape
                             )
                             .padding(if (selectedColor == color) 3.dp else 0.dp)
@@ -463,7 +483,11 @@ fun AddNoteBottomSheet(
             Button(
                 onClick = {
                     if (noteTitle.text.isNotBlank() || noteContent.text.isNotBlank()) {
-                        onAddNote(noteTitle.text.toString(), noteContent.text.toString(), selectedColor.toArgb().toLong())
+                        onAddNote(
+                            noteTitle.text.toString(),
+                            noteContent.text.toString(),
+                            selectedColor.toArgb().toLong()
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
