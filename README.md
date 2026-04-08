@@ -7,6 +7,9 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android-34a853.svg?logo=android" alt="Android" />
+  <img src="https://img.shields.io/badge/Platform-iOS-lightgrey.svg?logo=apple" alt="iOS" />
+  <img src="https://img.shields.io/badge/Platform-Windows/macOS/Linux-e10707.svg?logo=openjdk" alt="Platform JVM" />
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
 </p>
 
@@ -21,7 +24,7 @@
 
 **KNotes** is a starter project born out of the desire to explore and learn **Compose Multiplatform**. It's not a finalized product, but rather a living, breathing sandbox where we continuously build, refine, and experiment with the latest and greatest libraries in the Kotlin Multiplatform (KMP) ecosystem.
 
-Our core idea is simple: maintain a **clean, minimalistic notes app** while constantly upgrading its internals and UI to adopt the newest features of the Compose Multiplatform stack. 
+Our core idea is simple: maintain a **clean, minimalistic notes app** while constantly upgrading its internals and UI to adopt the newest features of the Compose Multiplatform stack.
 
 Whether you're taking quick thoughts, managing daily tasks, or just seeing how Ktor, Room, and Koin work seamlessly across platforms, this project serves as a practical, real-world example.
 
@@ -41,7 +44,7 @@ We are committed to using modern, industry-standard libraries and the latest rec
 
 ## 🤝 Contributing
 
-**Contributors are highly welcome!** 
+**Contributors are highly welcome!**
 
 We want this project to be a collaborative space to explore CMP. If you want to contribute, please keep the following guidelines in mind:
 

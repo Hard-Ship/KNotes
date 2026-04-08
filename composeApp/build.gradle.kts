@@ -84,6 +84,9 @@ kotlin {
 
             // DataStore
             implementation(libs.androidx.datastore.preferences.core)
+
+            // FileKit
+            implementation("io.github.vinceglb:filekit-dialogs-compose:0.13.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
