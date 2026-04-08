@@ -3,6 +3,7 @@ package com.app.knotes.di
 import com.app.knotes.network.NotesApi
 import com.app.knotes.network.HttpClientFactory
 import com.app.knotes.NotesVm
+import com.app.knotes.settings.SettingsVm
 import com.app.knotes.db.AppDatabase
 import com.app.knotes.db.NotesRepository
 import com.app.knotes.db.SettingsRepository
@@ -25,4 +26,5 @@ val appModule = module {
 
     viewModelOf(::NotesVm)
     viewModelOf(::TaskVm)
+    viewModelOf(::SettingsVm)
 }

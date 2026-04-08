@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.app.knotes.settings.SettingsScreen
 import com.app.knotes.task.pres.TasksScreen
 import kotlinx.serialization.Serializable
 
@@ -35,7 +37,8 @@ sealed interface NavRoute {
 
 enum class RootTab(val label: String, val icon: ImageVector) {
     Tasks("Tasks", Icons.Rounded.Description),
-    Notes("Notes", Icons.Rounded.CheckCircle)
+    Notes("Notes", Icons.Rounded.CheckCircle),
+    Settings("Settings", Icons.Rounded.Settings),
 }
 
 @Composable
@@ -120,6 +123,7 @@ fun RootScreen(onNoteClick: (Int) -> Unit) {
                     when (selectedTab) {
                         RootTab.Tasks -> TasksScreen()
                         RootTab.Notes -> NotesScreen(onNoteClick = onNoteClick)
+                        RootTab.Settings -> SettingsScreen()
                     }
                 }
             }
@@ -143,6 +147,7 @@ fun RootScreen(onNoteClick: (Int) -> Unit) {
                     when (selectedTab) {
                         RootTab.Tasks -> TasksScreen()
                         RootTab.Notes -> NotesScreen(onNoteClick = onNoteClick)
+                        RootTab.Settings -> SettingsScreen()
                     }
                 }
             }

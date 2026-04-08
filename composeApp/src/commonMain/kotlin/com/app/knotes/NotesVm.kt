@@ -29,15 +29,8 @@ sealed class NoteDetailUiState {
 }
 
 class NotesVm(
-    private val notesRepository: NotesRepository,
-    private val settingsRepository: SettingsRepository
+    private val notesRepository: NotesRepository
 ) : ViewModel() {
-
-    val isDarkMode: StateFlow<Boolean> = settingsRepository.isDarkMode.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000),
-        false
-    )
 
     private val _noteToDelete = MutableStateFlow<NoteEntity?>(null)
     private val _isShowAddNoteBs = MutableStateFlow(false)
@@ -166,9 +159,4 @@ class NotesVm(
         }
     }
     
-    fun toggleTheme() {
-        viewModelScope.launch {
-            settingsRepository.toggleTheme()
-        }
-    }
 }

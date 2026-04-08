@@ -82,7 +82,6 @@ fun NotesScreen(
 
     val viewModel: NotesVm = koinViewModel()
     val state by viewModel.state.collectAsState()
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     when (state) {
         is NotesScreenUiState.Error -> {
@@ -160,14 +159,6 @@ fun NotesScreen(
                 topBar = {
                     TopAppBar(
                         title = { Text("Notes", style = MaterialTheme.typography.headlineMedium) },
-                        actions = {
-                            IconButton(onClick = { viewModel.toggleTheme() }) {
-                                Icon(
-                                    imageVector = if (isDarkMode) Icons.Rounded.DarkMode else Icons.Rounded.LightMode,
-                                    contentDescription = "Toggle Theme"
-                                )
-                            }
-                        },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.background
                         )
