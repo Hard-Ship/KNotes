@@ -9,13 +9,15 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+private var dataStore: DataStore<Preferences>? = null
+
 actual fun createDataStore(context: Any?): DataStore<Preferences> {
     val ctx = context as Context
-    return PreferenceDataStoreFactory.createWithPath(
+    return dataStore ?: PreferenceDataStoreFactory.createWithPath(
         produceFile = {
             ctx.filesDir.resolve(DATASTORE_FILE_NAME).absolutePath.toPath()
         }
-    )
+    ).also { dataStore = it }
 }
 
 actual fun platformSettingsModule(): Module = module {

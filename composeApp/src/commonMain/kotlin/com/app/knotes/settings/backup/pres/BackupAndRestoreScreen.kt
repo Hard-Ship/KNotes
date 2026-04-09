@@ -1,4 +1,4 @@
-package com.app.knotes.settings.backup
+package com.app.knotes.settings.backup.pres
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,12 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.knotes.currentTimeMillis
+import com.app.knotes.settings.backup.core.BackupVm
 import com.app.knotes.utils.convertMillisToDate
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -34,7 +34,7 @@ fun BackupAndRestoreScreen(
         type = FileKitType.File(extensions = listOf("json")),
         onResult = { file ->
             file?.let {
-                viewModel.restoreFromBackupJson(file) { message->
+                viewModel.restoreBackup(file) { message->
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(message)
                     }
@@ -47,7 +47,7 @@ fun BackupAndRestoreScreen(
         dialogSettings = FileKitDialogSettings.createDefault(),
     ) { file ->
         file?.let {
-            viewModel.generateBackupJson(file){ message->
+            viewModel.generateBackup(file){ message->
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(message)
                 }

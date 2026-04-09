@@ -8,12 +8,14 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.io.File
 
+private var dataStore: DataStore<Preferences>? = null
+
 actual fun createDataStore(context: Any?): DataStore<Preferences> {
-    return PreferenceDataStoreFactory.createWithPath(
+    return dataStore ?: PreferenceDataStoreFactory.createWithPath(
         produceFile = {
             File(DATASTORE_FILE_NAME).absolutePath.toPath()
         }
-    )
+    ).also { dataStore = it }
 }
 
 actual fun platformSettingsModule(): Module = module {
