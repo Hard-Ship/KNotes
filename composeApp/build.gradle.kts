@@ -18,9 +18,11 @@ room {
 }
 
 kotlin {
+    jvmToolchain(21)
+    
     androidTarget {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
     
@@ -87,6 +89,10 @@ kotlin {
 
             // FileKit
             implementation("io.github.vinceglb:filekit-dialogs-compose:0.13.0")
+
+            // Cryptography
+            implementation("dev.whyoleg.cryptography:cryptography-core:0.6.0")
+            implementation("dev.whyoleg.cryptography:cryptography-provider-optimal:0.6.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -127,8 +133,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
@@ -146,7 +152,7 @@ compose.desktop {
         mainClass = "com.app.knotes.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "com.app.knotes"
             packageVersion = "1.0.0"
         }

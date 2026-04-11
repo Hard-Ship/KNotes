@@ -31,7 +31,7 @@ fun BackupAndRestoreScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val filePicker = rememberFilePickerLauncher(
-        type = FileKitType.File(extensions = listOf("json")),
+        type = FileKitType.File(extensions = listOf("knotes")),
         onResult = { file ->
             file?.let {
                 viewModel.restoreBackup(file) { message->
@@ -106,7 +106,7 @@ fun BackupAndRestoreScreen(
                         Text("Export Backup", style = MaterialTheme.typography.titleMedium)
                     }
                     Text(
-                        "Save a JSON file containing all your notes and task to your device.",
+                        "Save an encrypted backup file containing all your notes and task to your device.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -114,13 +114,13 @@ fun BackupAndRestoreScreen(
                     Button(
                         onClick = {
                             fileSaver.launch(
-                                extension = "json",
                                 suggestedName = "Knotes_backup_${
                                     convertMillisToDate(
                                         currentTimeMillis(),
                                         "dd_MMM_yyyy_hh-mm_a"
                                     )
-                                }"
+                                }",
+                                extension = "knotes"
                             )
                         },
                         modifier = Modifier.align(Alignment.End)
@@ -151,7 +151,7 @@ fun BackupAndRestoreScreen(
                         Text("Import Backup", style = MaterialTheme.typography.titleMedium)
                     }
                     Text(
-                        "Restore notes and task  from a previously exported JSON backup file. Imported notes and task will be added alongside your existing ones.",
+                        "Restore notes and task from a previously exported encrypted backup file. Imported notes and task will be added alongside your existing ones.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

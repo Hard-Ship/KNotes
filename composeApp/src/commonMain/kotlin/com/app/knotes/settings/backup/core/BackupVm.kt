@@ -6,8 +6,9 @@ import com.app.knotes.settings.backup.data.BackupRepo
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.write
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.withContext
 
 class BackupVm(
     private val backupRepo: BackupRepo,
@@ -16,10 +17,13 @@ class BackupVm(
     fun generateBackup(file: PlatformFile, onTaskComplete: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                backupRepo.createBackup().onSuccess { backup ->
+                withContext(Dispatchers.Default) {
+                    backupRepo.createBackup()
+                }.onSuccess { backupBytes ->
 
-                    val backupJson = Json.encodeToString(backup)
-                    file.write(backupJson.encodeToByteArray())
+                    withContext(Dispatchers.Default) {
+                        file.write(backupBytes)
+                    }
                     onTaskComplete("Backup saved successfully!")
 
                 }.onFailure {
@@ -36,10 +40,13 @@ class BackupVm(
         viewModelScope.launch {
             try {
 
-                val bytes = file.readBytes()
-                val jsonString = bytes.decodeToString()
+                val bytes = withContext(Dispatchers.Default) {
+                    file.readBytes()
+                }
 
-                backupRepo.restoreBackup(jsonString).onSuccess {
+                withContext(Dispatchers.Default) {
+                    backupRepo.restoreBackup(bytes)
+                }.onSuccess {
                     onTaskComplete("Successfully restored.")
                 }.onFailure {
                     onTaskComplete(it.message ?: "Failed to restore backup")
