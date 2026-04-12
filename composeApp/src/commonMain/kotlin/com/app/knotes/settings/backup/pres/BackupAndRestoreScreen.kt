@@ -1,4 +1,4 @@
-package com.app.knotes.settings.backup
+package com.app.knotes.settings.backup.pres
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,12 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.app.knotes.currentTimeMillis
+import com.app.knotes.settings.backup.core.BackupVm
 import com.app.knotes.utils.convertMillisToDate
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -31,10 +31,10 @@ fun BackupAndRestoreScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val filePicker = rememberFilePickerLauncher(
-        type = FileKitType.File(extensions = listOf("json")),
+        type = FileKitType.File(extensions = listOf("knotes")),
         onResult = { file ->
             file?.let {
-                viewModel.restoreFromBackupJson(file) { message->
+                viewModel.restoreBackup(file) { message->
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(message)
                     }
@@ -47,7 +47,7 @@ fun BackupAndRestoreScreen(
         dialogSettings = FileKitDialogSettings.createDefault(),
     ) { file ->
         file?.let {
-            viewModel.generateBackupJson(file){ message->
+            viewModel.generateBackup(file){ message->
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(message)
                 }
@@ -106,7 +106,7 @@ fun BackupAndRestoreScreen(
                         Text("Export Backup", style = MaterialTheme.typography.titleMedium)
                     }
                     Text(
-                        "Save a JSON file containing all your notes and task to your device.",
+                        "Save an encrypted backup file containing all your notes and task to your device.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -114,13 +114,13 @@ fun BackupAndRestoreScreen(
                     Button(
                         onClick = {
                             fileSaver.launch(
-                                extension = "json",
                                 suggestedName = "Knotes_backup_${
                                     convertMillisToDate(
                                         currentTimeMillis(),
                                         "dd_MMM_yyyy_hh-mm_a"
                                     )
-                                }"
+                                }",
+                                extension = "knotes"
                             )
                         },
                         modifier = Modifier.align(Alignment.End)
@@ -151,7 +151,7 @@ fun BackupAndRestoreScreen(
                         Text("Import Backup", style = MaterialTheme.typography.titleMedium)
                     }
                     Text(
-                        "Restore notes and task  from a previously exported JSON backup file. Imported notes and task will be added alongside your existing ones.",
+                        "Restore notes and task from a previously exported encrypted backup file. Imported notes and task will be added alongside your existing ones.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

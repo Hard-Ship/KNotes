@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.app.knotes.settings.SettingsScreen
-import com.app.knotes.settings.backup.BackupAndRestoreScreen
+import com.app.knotes.settings.backup.pres.BackupAndRestoreScreen
 import com.app.knotes.task.pres.TasksScreen
 import kotlinx.serialization.Serializable
 
@@ -37,8 +37,8 @@ sealed interface NavRoute {
 }
 
 enum class RootTab(val label: String, val icon: ImageVector) {
-    Tasks("Tasks", Icons.Rounded.Description),
-    Notes("Notes", Icons.Rounded.CheckCircle),
+    Tasks("Tasks", Icons.Rounded.CheckCircle),
+    Notes("Notes", Icons.Rounded.Description),
     Settings("Settings", Icons.Rounded.Settings),
 }
 

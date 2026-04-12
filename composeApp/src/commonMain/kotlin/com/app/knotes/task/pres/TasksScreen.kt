@@ -171,6 +171,7 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                                 .fillMaxSize()
                                 .weight(1f),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(bottom = 160.dp),
                             columns = GridCells.Adaptive(300.dp),
                         ) {
                             items(data.taskList, key = { it.id }) { task ->

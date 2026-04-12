@@ -13,6 +13,8 @@ class NotesRepository(
 
     suspend fun insert(note: NoteEntity) = noteDao.insert(note)
 
+    suspend fun insert(notes: List<NoteEntity>) = noteDao.insert(notes)
+
     suspend fun update(note: NoteEntity) = noteDao.update(note)
 
     suspend fun delete(note: NoteEntity) = noteDao.delete(note)
