@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ImportExport
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Search
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.rounded.MoreVert
 import com.app.knotes.task.core.TaskEntity
 import com.app.knotes.task.core.TaskScreenUiState
 import com.app.knotes.task.core.TaskVm
@@ -107,6 +109,28 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                 topBar = {
                     TopAppBar(
                         title = { Text("Tasks", style = MaterialTheme.typography.headlineMedium) },
+                        actions = {
+                            var showMenu by remember { mutableStateOf(false) }
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
+                                DropdownMenu(
+                                    expanded = showMenu,
+                                    onDismissRequest = { showMenu = false },
+                                ) {
+
+                                    DropdownMenuItem(
+                                        text = { Text("Export as CSV") },
+                                        leadingIcon = {Icon(Icons.Default.ImportExport,"")},
+                                        onClick = {
+                                            showMenu = false
+                                            viewModel.exportTasksToCsv()
+                                        }
+                                    )
+
+                                }
+                            }
+
+                        },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.background
                         )

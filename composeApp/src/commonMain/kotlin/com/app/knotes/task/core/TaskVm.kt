@@ -1,10 +1,18 @@
 package com.app.knotes.task.core
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.knotes.currentTimeMillis
 import com.app.knotes.task.data.TaskRepository
+import com.app.knotes.utils.FilePickerController
+import com.app.knotes.utils.FileSaverController
+import com.app.knotes.utils.SnackbarController
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -91,6 +99,41 @@ class TaskVm(
                 searchQuery = query,
                 taskList = allTasks.filter { it.title.contains(query, ignoreCase = true) }
             ) ?: current
+        }
+    }
+
+    fun exportTasksToCsv() {
+        FileSaverController.save(
+            suggestedName = "tasks_export",
+            extension = "csv"
+        ) { file ->
+            file?.let { generateCsvTemplate(it) }
+        }
+    }
+
+    private fun generateCsvTemplate(file: PlatformFile) {
+        viewModelScope.launch {
+            try {
+                val csvContent = buildString {
+                    appendLine("title,isCompleted")
+                    allTasks.forEach { task ->
+                        val escapedTitle = task.title.replace("\"", "\"\"")
+                        appendLine("\"$escapedTitle\",${task.isCompleted}")
+                    }
+                }
+                withContext(Dispatchers.IO) {
+                    file.write(csvContent.encodeToByteArray())
+                }
+                SnackbarController.showSnackbar(
+                    message = "Tasks exported successfully!",
+                    duration = SnackbarDuration.Short
+                )
+            } catch (e: Exception) {
+                SnackbarController.showSnackbar(
+                    message = e.message ?: "Failed to export tasks",
+                    duration = SnackbarDuration.Long
+                )
+            }
         }
     }
 
