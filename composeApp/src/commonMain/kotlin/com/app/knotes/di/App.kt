@@ -49,6 +49,7 @@ fun App(platformConfig: KoinAppDeclaration = {}) {
             Scaffold(
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
             ) { paddingValues ->
+                GlobalFileSaverHost()
                 Box(modifier = Modifier.padding(paddingValues)) {
                     AppNavigation()
                 }
