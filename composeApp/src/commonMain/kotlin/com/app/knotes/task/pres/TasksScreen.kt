@@ -115,6 +115,7 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                                 Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
                                 DropdownMenu(
                                     expanded = showMenu,
+                                    shape = RoundedCornerShape(20.dp),
                                     onDismissRequest = { showMenu = false },
                                 ) {
 
@@ -124,6 +125,15 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                                         onClick = {
                                             showMenu = false
                                             viewModel.exportTasksToCsv()
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { Text("Import from CSV") },
+                                        leadingIcon = { Icon(Icons.Default.ImportExport, "") },
+                                        onClick = {
+                                            showMenu = false
+                                            viewModel.importTasksFromCsv()
                                         }
                                     )
 
