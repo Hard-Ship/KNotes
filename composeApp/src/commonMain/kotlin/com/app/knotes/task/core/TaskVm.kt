@@ -20,13 +20,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+enum class TaskFilter { ALL, COMPLETED, PENDING }
+
 sealed class TaskScreenUiState {
     object Loading : TaskScreenUiState()
     data class Error(val message: String) : TaskScreenUiState()
     data class Success(
         val taskList: List<TaskEntity> = emptyList(),
         val isShowAddTaskDialog: Boolean = false,
-        val searchQuery: String = ""
+        val searchQuery: String = "",
+        val filter: TaskFilter = TaskFilter.ALL
     ) : TaskScreenUiState()
 }
 
@@ -52,7 +55,15 @@ class TaskVm(
                 _TaskScreenUiState.update { current ->
                     val success = current as? TaskScreenUiState.Success ?: TaskScreenUiState.Success()
                     success.copy(
-                        taskList = allTasks.filter { it.title.contains(success.searchQuery, ignoreCase = true) }
+                        taskList = allTasks.filter { task ->
+                            val matchesSearch = task.title.contains(success.searchQuery, ignoreCase = true)
+                            val matchesFilter = when (success.filter) {
+                                TaskFilter.ALL -> true
+                                TaskFilter.COMPLETED -> task.isCompleted
+                                TaskFilter.PENDING -> !task.isCompleted
+                            }
+                            matchesSearch && matchesFilter
+                        }
                     )
                 }
             }
@@ -95,10 +106,37 @@ class TaskVm(
 
     fun updateSearchQuery(query: String) {
         _TaskScreenUiState.update { current ->
-            (current as? TaskScreenUiState.Success)?.copy(
+            val success = current as? TaskScreenUiState.Success ?: return@update current
+            success.copy(
                 searchQuery = query,
-                taskList = allTasks.filter { it.title.contains(query, ignoreCase = true) }
-            ) ?: current
+                taskList = allTasks.filter { task ->
+                    val matchesSearch = task.title.contains(query, ignoreCase = true)
+                    val matchesFilter = when (success.filter) {
+                        TaskFilter.ALL -> true
+                        TaskFilter.COMPLETED -> task.isCompleted
+                        TaskFilter.PENDING -> !task.isCompleted
+                    }
+                    matchesSearch && matchesFilter
+                }
+            )
+        }
+    }
+
+    fun updateFilter(filter: TaskFilter) {
+        _TaskScreenUiState.update { current ->
+            val success = current as? TaskScreenUiState.Success ?: return@update current
+            success.copy(
+                filter = filter,
+                taskList = allTasks.filter { task ->
+                    val matchesSearch = task.title.contains(success.searchQuery, ignoreCase = true)
+                    val matchesFilter = when (filter) {
+                        TaskFilter.ALL -> true
+                        TaskFilter.COMPLETED -> task.isCompleted
+                        TaskFilter.PENDING -> !task.isCompleted
+                    }
+                    matchesSearch && matchesFilter
+                }
+            )
         }
     }
 

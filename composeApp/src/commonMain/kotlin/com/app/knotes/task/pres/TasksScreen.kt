@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.rounded.MoreVert
 import com.app.knotes.task.core.TaskEntity
+import com.app.knotes.task.core.TaskFilter
 import com.app.knotes.task.core.TaskScreenUiState
 import com.app.knotes.task.core.TaskVm
 import com.app.knotes.utils.convertMillisToDate
@@ -173,6 +174,29 @@ fun TasksScreen(modifier: Modifier = Modifier) {
                             Icon(Icons.Rounded.Search, contentDescription = "Search")
                         }
                     )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = data.filter == TaskFilter.ALL,
+                            onClick = { viewModel.updateFilter(TaskFilter.ALL) },
+                            label = { Text("All") }
+                        )
+                        FilterChip(
+                            selected = data.filter == TaskFilter.PENDING,
+                            onClick = { viewModel.updateFilter(TaskFilter.PENDING) },
+                            label = { Text("Pending") }
+                        )
+                        FilterChip(
+                            selected = data.filter == TaskFilter.COMPLETED,
+                            onClick = { viewModel.updateFilter(TaskFilter.COMPLETED) },
+                            label = { Text("Completed") }
+                        )
+                    }
 
                     if (data.taskList.isEmpty()) {
                         val isSearching = data.searchQuery.isNotEmpty()

@@ -153,8 +153,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
-            packageName = "com.app.knotes"
+            packageName = "KNotes"
             packageVersion = "1.0.0"
+            description = "A clean, simple, and modern Todo / Notes / Task / Thought-Taker App built to explore the power of Compose Multiplatform."
+            vendor = "KNotes"
+            copyright = "Licensed under the Apache License, Version 2.0."
         }
     }
 }
